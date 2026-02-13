@@ -7,6 +7,7 @@ import { useToast } from '@/composables/useToast'
 import Button from '@/components/ui/button.vue'
 import Input from '@/components/ui/input.vue'
 import Select from '@/components/ui/select.vue'
+import Label from '@/components/ui/label.vue'
 import Dialog from '@/components/ui/dialog.vue'
 import Badge from '@/components/ui/badge.vue'
 import Card from '@/components/ui/card.vue'
@@ -19,7 +20,7 @@ import TableBody from '@/components/ui/table-body.vue'
 import TableRow from '@/components/ui/table-row.vue'
 import TableHead from '@/components/ui/table-head.vue'
 import TableCell from '@/components/ui/table-cell.vue'
-import { Plus, Search, Pencil, Trash2, Loader2 } from 'lucide-vue-next'
+import { Plus, Search, Pencil, Trash2, Loader2, X, Filter, RotateCcw } from 'lucide-vue-next'
 import { Permissions, type User, type UserStatus } from '@starter/shared'
 import { formatDate } from '@/lib/utils'
 
@@ -192,6 +193,22 @@ const handlePageChange = (newPage: number) => {
     page: newPage,
   })
 }
+
+const hasActiveFilters = computed(() => {
+  return search.value || roleFilter.value || statusFilter.value
+})
+
+const resetFilters = () => {
+  search.value = ''
+  roleFilter.value = ''
+  statusFilter.value = ''
+  handleSearch()
+}
+
+const clearSearch = () => {
+  search.value = ''
+  handleSearch()
+}
 </script>
 
 <template>
@@ -205,35 +222,83 @@ const handlePageChange = (newPage: number) => {
     </div>
 
     <!-- Filters -->
-    <Card>
-      <CardContent class="pt-6">
-        <div class="flex flex-wrap gap-4">
-          <div class="flex-1 min-w-[200px]">
-            <div class="relative">
-              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                v-model="search"
-                placeholder="Search users..."
-                class="pl-9"
-                @keyup.enter="handleSearch"
+    <Card class="bg-muted/50">
+      <CardContent class="pt-4 pb-4">
+        <div class="flex flex-col gap-4">
+          <!-- Filter Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Filter class="h-4 w-4" />
+              <span>Filters</span>
+              <Badge v-if="hasActiveFilters" variant="secondary" class="ml-2 text-xs">
+                Active
+              </Badge>
+            </div>
+            <Button
+              v-if="hasActiveFilters"
+              variant="ghost"
+              size="sm"
+              class="h-8 text-muted-foreground hover:text-foreground"
+              @click="resetFilters"
+            >
+              <RotateCcw class="mr-1.5 h-3.5 w-3.5" />
+              Reset
+            </Button>
+          </div>
+
+          <!-- Filter Inputs -->
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Search -->
+            <div class="space-y-1.5">
+              <Label class="text-xs font-medium text-muted-foreground">Search</Label>
+              <div class="relative">
+                <Search class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  v-model="search"
+                  placeholder="Name or email..."
+                  class="h-9 pl-9 pr-8"
+                  @keyup.enter="handleSearch"
+                />
+                <button
+                  v-if="search"
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  @click="clearSearch"
+                >
+                  <X class="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Role Filter -->
+            <div class="space-y-1.5">
+              <Label class="text-xs font-medium text-muted-foreground">Role</Label>
+              <Select
+                v-model="roleFilter"
+                :options="roleOptions"
+                @update:model-value="handleSearch"
               />
             </div>
+
+            <!-- Status Filter -->
+            <div class="space-y-1.5">
+              <Label class="text-xs font-medium text-muted-foreground">Status</Label>
+              <Select
+                v-model="statusFilter"
+                :options="statusOptions"
+                @update:model-value="handleSearch"
+              />
+            </div>
+
+            <!-- Apply Button -->
+            <div class="space-y-1.5 flex flex-col justify-end">
+              <Label class="text-xs font-medium text-transparent select-none">Action</Label>
+              <Button size="sm" class="h-9" @click="handleSearch">
+                <Search class="mr-2 h-4 w-4" />
+                Apply Filters
+              </Button>
+            </div>
           </div>
-          <Select
-            v-model="roleFilter"
-            :options="roleOptions"
-            class="w-[180px]"
-            @update:model-value="handleSearch"
-          />
-          <Select
-            v-model="statusFilter"
-            :options="statusOptions"
-            class="w-[150px]"
-            @update:model-value="handleSearch"
-          />
-          <Button variant="secondary" @click="handleSearch">
-            Search
-          </Button>
         </div>
       </CardContent>
     </Card>
