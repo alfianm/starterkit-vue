@@ -1,0 +1,26 @@
+{
+  "name": "fullstack-starter-kit",
+  "version": "1.0.0",
+  "description": "Fullstack Starter Kit with Vue 3 + Express + Prisma + PostgreSQL",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter shared build && pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "db:up": "echo 'Using local PostgreSQL'",
+    "db:down": "echo 'Using local PostgreSQL'",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:generate": "pnpm --filter api db:generate",
+    "db:studio": "pnpm --filter api db:studio"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
